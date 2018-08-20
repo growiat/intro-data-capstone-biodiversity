@@ -1,30 +1,28 @@
-
-
 import codecademylib
 import pandas as pd
-import matplotlib as plt
+from matplotlib import pyplot as plt
 
 species = pd.read_csv('species_info.csv')
-print(species.head())
-print('')
+species['is_sheep'] = species.common_names.apply(lambda x: 'Sheep' in x)
+sheep_species = species[(species.is_sheep) & (species.category == 'Mammal')]
 
-species_count = species['scientific_name'].nunique()
-#print species_count
+observations = pd.read_csv('observations.csv')
 
-species_type = species['category'].unique()
-#print species_type 
+sheep_observations = observations.merge(sheep_species)
 
-conservation_statuses = species['conservation_status'].unique()
-#print conservation_statuses
+obs_by_park = sheep_observations.groupby('park_name').observations.sum().reset_index()
+#print obs_by_park
 
+parks = ['Bryce National Park', 'Great Smoky Mountains National Park',  'Yellowstone National Park', 'Yosemite National Park' ]
 
-conservation_counts = species.groupby('conservation_status').scientific_name.nunique().reset_index()
+x = range(len(parks))
+y = [250, 149, 507, 282]
 
-print conservation_counts
-
-
-species.fillna('No Intervention', inplace = True)
-
-conservation_counts_fixed = species.groupby('conservation_status').scientific_name.nunique().reset_index()
-
-print conservation_counts_fixed
+plt.figure(figsize = (16,4))
+ax = plt.subplot()
+plt.bar(x, y)
+ax.set_xticks(x)
+ax.set_xticklabels(parks)
+plt.ylabel('Number of Observatios')
+plt.title('Observations of Sheep per week')
+plt.show()
